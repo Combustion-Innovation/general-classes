@@ -37,7 +37,6 @@ public class FBFragment extends Fragment {
     private void onSessionStateChange(Session session, SessionState state, Exception exception) {
         if (state.isOpened()) {
             Log.i(TAG, "Logged in...");
-            Log.d(TAG, "launching custom callback!!!\t" + sentData);
             if (!sentData) {
                 Request.newMeRequest(session, graphUserCallback).executeAsync();
                 sentData = true;
@@ -60,7 +59,7 @@ public class FBFragment extends Fragment {
                              ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.activity_my, container, false);
-        LoginButton authButton = (LoginButton) view.findViewById(R.id.FBauthButton);
+        LoginButton authButton = (LoginButton) view.findViewById(R.id.fb_login_button);
         authButton.setFragment(this);
         authButton.setOnClickListener(new View.OnClickListener() {
             @Override
