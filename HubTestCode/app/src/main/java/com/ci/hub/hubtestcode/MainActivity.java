@@ -23,11 +23,12 @@ import android.widget.Toast;
 import org.json.JSONObject;
 
 public class MainActivity extends Activity {
-    public static final String EXTRA_STUFF = "MainActivity.EXTRA_STUFF";
-    public static final String TAG = "MainActivity";
+    private static final String TAG = "MainActivity";
 
-    private static final int TAKE_PICTURE_REQUEST = 100;
+    private static final int TAKE_PICTURE_REQUEST_B = 100;
 
+    private ImageView mCameraImageView;
+    private Bitmap mCameraBitmap;
     private Button mSaveImageButton;
 
     private OnClickListener mCaptureImageButtonClickListener = new OnClickListener() {
@@ -40,7 +41,13 @@ public class MainActivity extends Activity {
     private OnClickListener mSaveImageButtonClickListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
-
+            File saveFile = openFileForImage();
+            if (saveFile != null) {
+                saveImageToFile(saveFile);
+            } else {
+                Toast.makeText(MainActivity.this, "Unable to open file for saving image.",
+                        Toast.LENGTH_LONG).show();
+            }
         }
     };
 
@@ -49,7 +56,7 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        ImageView mCameraImageView = (ImageView) findViewById(R.id.camera_image_view);
+        mCameraImageView = (ImageView) findViewById(R.id.camera_image_view);
 
         findViewById(R.id.capture_image_button).setOnClickListener(mCaptureImageButtonClickListener);
 
@@ -58,18 +65,9 @@ public class MainActivity extends Activity {
         mSaveImageButton.setEnabled(false);
     }
 
-    private void startImageCapture() {
-        //startActivityForResult(new Intent(MediaStore.ACTION_IMAGE_CAPTURE), TAKE_PICTURE_REQUEST);
-        //startActivityForResult(new Intent(MainActivity.this, CameraActivity.class), TAKE_PICTURE_REQUEST);
-
-        Intent intent = new Intent(this, CameraActivity.class);
-        intent.putExtra(EXTRA_STUFF, "IT WORKS!");
-        startActivityForResult(intent, TAKE_PICTURE_REQUEST);
-    }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        /*if (requestCode == TAKE_PICTURE_REQUEST) {
+        if (requestCode == TAKE_PICTURE_REQUEST_B) {
             if (resultCode == RESULT_OK) {
                 // Recycle the previous bitmap.
                 if (mCameraBitmap != null) {
@@ -88,12 +86,51 @@ public class MainActivity extends Activity {
                 mCameraBitmap = null;
                 mSaveImageButton.setEnabled(false);
             }
-        }*/
-        if (requestCode == TAKE_PICTURE_REQUEST) {
-            if (resultCode == RESULT_OK) {
-                String returnData = data.getData().toString();
-                Log.d(TAG, "The result was " + returnData);
-                Log.d(TAG, "Image data: " + data.getExtras().getString(CameraActivity.IMAGE_DATA));
+        }
+    }
+
+    private void startImageCapture() {
+        startActivityForResult(new Intent(MediaStore.ACTION_IMAGE_CAPTURE), TAKE_PICTURE_REQUEST_B);
+        startActivityForResult(new Intent(MainActivity.this, CameraActivity.class), TAKE_PICTURE_REQUEST_B);
+    }
+
+    private File openFileForImage() {
+        File imageDirectory = null;
+        String storageState = Environment.getExternalStorageState();
+        if (storageState.equals(Environment.MEDIA_MOUNTED)) {
+            imageDirectory = new File(
+                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
+                    "com.oreillyschool.android2.camera");
+            if (!imageDirectory.exists() && !imageDirectory.mkdirs()) {
+                imageDirectory = null;
+            } else {
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy_mm_dd_hh_mm",
+                        Locale.getDefault());
+
+                return new File(imageDirectory.getPath() +
+                        File.separator + "image_" +
+                        dateFormat.format(new Date()) + ".png");
+            }
+        }
+        return null;
+    }
+
+    private void saveImageToFile(File file) {
+        if (mCameraBitmap != null) {
+            FileOutputStream outStream = null;
+            try {
+                outStream = new FileOutputStream(file);
+                if (!mCameraBitmap.compress(Bitmap.CompressFormat.PNG, 100, outStream)) {
+                    Toast.makeText(MainActivity.this, "Unable to save image to file.",
+                            Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(MainActivity.this, "Saved image to: " + file.getPath(),
+                            Toast.LENGTH_LONG).show();
+                }
+                outStream.close();
+            } catch (Exception e) {
+                Toast.makeText(MainActivity.this, "Unable to save image to file.",
+                        Toast.LENGTH_LONG).show();
             }
         }
     }

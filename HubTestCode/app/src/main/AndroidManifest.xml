@@ -26,9 +26,9 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.ci.hub.hubtestcode.CameraActivity"
+            android:name=".CameraActivity"
             android:label="Capture Image"
-            />
+            android:screenOrientation="landscape" />
         <service
             android:name="com.alexbbb.uploadservice.UploadService"
             android:enabled="true"
