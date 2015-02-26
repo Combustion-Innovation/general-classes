@@ -6,10 +6,8 @@ import android.content.DialogInterface;
 import android.database.Cursor;
 import android.provider.ContactsContract;
 import android.util.Log;
-import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -34,11 +32,15 @@ import java.util.List;
 public class ContactManager {
     public static final String TAG = "ContactManager";
 
-    private static Activity activity;
-    private static boolean contactPermission;
-    private static CICallback onPermissionsCallback;
+    private Activity activity;
+    private boolean contactPermission;
+    private CICallback onPermissionsCallback;
 
-    private static List getAllContacts() {
+    public ContactManager(Activity activity) {
+        this.activity = activity;
+    }
+
+    private List getAllContacts() {
         List<Contact> contacts = new ArrayList<Contact>(2);
 
         ContentResolver cr = activity.getContentResolver();
@@ -73,15 +75,11 @@ public class ContactManager {
         return contacts;
     }
 
-    public static void setActivity(Activity activity) {
-        ContactManager.activity = activity;
-    }
-
-    public static boolean hasContactPermission() {
+    public boolean hasContactPermission() {
         return contactPermission;
     }
 
-    public static void getContacts(CICallback callback) {
+    public void getContacts(CICallback callback) {
         onPermissionsCallback = callback;
 
         if (hasContactPermission()) {
@@ -92,8 +90,9 @@ public class ContactManager {
         }
     }
 
-    public static void askForContactsPermission() {
-        GetContactsConfirmationFragment confirmationDialog = new GetContactsConfirmationFragment(
+    public void askForContactsPermission() {
+        GetContactsConfirmationFragment confirmationDialog = new GetContactsConfirmationFragment();
+        confirmationDialog.setCallback(
                 new GetContactsConfirmationFragment.ConfirmationCallback() {
                     @Override
                     public void onPositiveButton(DialogInterface dialog, int id) {

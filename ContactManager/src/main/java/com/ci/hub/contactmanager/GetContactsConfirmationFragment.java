@@ -15,8 +15,11 @@ public class GetContactsConfirmationFragment extends DialogFragment {
 
     private ConfirmationCallback callback;
 
-    public GetContactsConfirmationFragment(ConfirmationCallback callback) {
+    public GetContactsConfirmationFragment() {
         super();
+    }
+
+    public void setCallback(ConfirmationCallback callback) {
         this.callback = callback;
     }
 
